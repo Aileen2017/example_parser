@@ -29,7 +29,7 @@ public class ExampleGrammar
  
 		List<Expression> lines = ExampleGrammar.multiple_lines();
 		for(Expression l : lines) {		 
-			System.out.println(l.evaluate(context));
+			l.evaluate(context);
 		
 		}
 	
@@ -101,7 +101,7 @@ Expression while_loop_line():
 	BlockExpression e2;
 }
 {
-  "while ("
+  "while("
    e1 = compare()
    "){"
    e2 = block()
@@ -112,6 +112,23 @@ Expression while_loop_line():
 	
 }
 
+Expression print():
+{
+	
+	Token variableToken;
+}
+{
+	"print("
+	variableToken = < IDENTIFIER >
+	");"
+	{
+		return new PrintExpression(new VariableExpression(variableToken.image));
+	}
+	
+	
+}
+
+
 
 Expression if_else_line():
 {
@@ -119,7 +136,7 @@ Expression if_else_line():
 	BlockExpression e2;
 }
 {
-	"if ("
+	"if("
 	e1 = compare()
 	"){"
 	e2 = block()
@@ -161,6 +178,7 @@ Expression multiple_types_one_line():
 	| expression = calculate(){ return expression;}
 	| expression = if_else_line() { return expression;}
 	| expression = while_loop_line() { return expression; }
+	| expression = print() { return expression; }
 	
 }
 

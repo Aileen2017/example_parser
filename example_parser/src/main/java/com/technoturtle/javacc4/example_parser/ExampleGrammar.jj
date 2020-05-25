@@ -95,6 +95,24 @@ List<Expression> multiple_lines():
 	}
 }
 
+Expression while_loop_line():
+{
+	Expression e1;
+	BlockExpression e2;
+}
+{
+  "while ("
+   e1 = compare()
+   "){"
+   e2 = block()
+   "};"
+   {
+     return new WhileLoopExpression((CompareExpression)e1, e2);
+   }
+	
+}
+
+
 Expression if_else_line():
 {
 	Expression e1;
@@ -142,6 +160,7 @@ Expression multiple_types_one_line():
 	expression = variable_assign(){ return expression;}
 	| expression = calculate(){ return expression;}
 	| expression = if_else_line() { return expression;}
+	| expression = while_loop_line() { return expression; }
 	
 }
 

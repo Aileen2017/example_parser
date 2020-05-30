@@ -62,6 +62,60 @@ public class ExampleGrammarTest {
 				
 	}
 	
+	@Test
+	public void testIfElse() throws ParseException {
+		String input = "A=1;B=3;if(A>B){print(A);}else{print(B);};@";
+		InputStream inputStream = new
+		ByteArrayInputStream(input.getBytes(Charset.forName("UTF-8")));
+		
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		PrintStream newPs = new PrintStream(baos);
+		PrintStream oldPs = System.out;
+		System.setOut(newPs);
+
+		ExampleGrammar exampleGrammar = new ExampleGrammar(inputStream); 
+		Context context = new Context(); 
+		List<Expression> expressions = ExampleGrammar.multiple_lines(); 
+		for(Expression l : expressions) 
+		{
+			l.evaluate(context); 
+
+		}
+		System.out.flush();
+		System.setOut(oldPs);
+		System.out.println(baos.toString());
+		assertEquals("3.0\n", baos.toString());
+				
+	}
+	
+	@Test
+	public void testIfElseScope() throws ParseException {
+		String input = "A=1;B=3;if(A<B){c=10; print(c);}else{print(B);};print(c);@";
+		InputStream inputStream = new
+		ByteArrayInputStream(input.getBytes(Charset.forName("UTF-8")));
+		
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		PrintStream newPs = new PrintStream(baos);
+		PrintStream oldPs = System.out;
+		System.setOut(newPs);
+
+		ExampleGrammar exampleGrammar = new ExampleGrammar(inputStream); 
+		Context context = new Context(); 
+		List<Expression> expressions = ExampleGrammar.multiple_lines(); 
+		for(Expression l : expressions) 
+		{
+			l.evaluate(context); 
+
+		}
+		System.out.flush();
+		System.setOut(oldPs);
+		System.out.println(baos.toString());
+		assertEquals("10.0\n0.0\n", baos.toString());
+				
+	}
+	
+	//String input = "def f() { print(100)}; call f();@";
+	
 	
 	
 	

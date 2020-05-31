@@ -18,6 +18,7 @@ public class ExampleGrammar
   public static void main(String args []) throws ParseException
   {
 	Context context = new Context();
+	//List<Context> contextStack = new LinkedList<Context>();  
     
     ExampleGrammar parser = new ExampleGrammar(System.in);
     while (true)
@@ -76,6 +77,7 @@ TOKEN :
   < CONSTANT : (< DIGIT >)+ >
 | < #DIGIT : [ "0"-"9" ] >
 | < IDENTIFIER: ["a"-"z","A"-"Z"](["0"-"9","a"-"z","A"-"Z"])* >
+|  < RETURNTYPE: ["a"-"z","A"-"Z"](["0"-"9","a"-"z","A"-"Z"])* >
 }
 
 List<Expression> multiple_lines():
@@ -105,7 +107,7 @@ Expression while_loop_line():
    e1 = compare()
    "){"
    e2 = block()
-   "};"
+   "}"
    {
      return new WhileLoopExpression((CompareExpression)e1, e2);
    }
@@ -120,11 +122,43 @@ Expression print():
 {
 	"print("
 	variableToken = < IDENTIFIER >
-	");"
+	")"
 	{
 		return new PrintExpression(new VariableExpression(variableToken.image));
 	}
+		
+}
+
+Expression method_def():
+{
+  List<String > parameters = new ArrayList<String >();
+  
+  BlockExpression blockExpression;
+  Token methodName, parameterName;
+}
+{
+	"double "
+	methodName = < IDENTIFIER>
+	"("
+	(	  	  (		parameterName = < IDENTIFIER > { parameters.add(parameterName.image); }
+	  )
+	  (","
+	  	parameterName = < IDENTIFIER > { parameters.add(parameterName.image); }
+	  	  )*
+	)?
+	")"
+	"{"
 	
+		blockExpression = block()
+
+	"}"
+	{
+		FunctionExpression methodExpression = new FunctionExpression("double", methodName.image, parameters, blockExpression);
+		FunctionFactory.addFunction(methodExpression);
+		return new FunctionFactory();
+	}
+	  
+
 	
 }
 
@@ -133,17 +167,21 @@ Expression print():
 Expression if_else_line():
 {
 	Expression e1;
-	BlockExpression e2;
+	BlockExpression e2, e3;
+	
 }
 {
 	"if("
 	e1 = compare()
 	"){"
 	e2 = block()
-	"};"
+	"}"
+	"else{"
+	  e3 = block()
+	"}"
 	
 	{
-	  return new IfElseExpression((CompareExpression)e1, e2);		
+	  return new IfElseExpression((CompareExpression)e1, e2, e3);		
 	}
 	
 }
@@ -174,11 +212,16 @@ Expression multiple_types_one_line():
 }
 {
 	LOOKAHEAD(2)
-	expression = variable_assign(){ return expression;}
-	| expression = calculate(){ return expression;}
-	| expression = if_else_line() { return expression;}
-	| expression = while_loop_line() { return expression; }
-	| expression = print() { return expression; }
+	expression = variable_assign()";"{ return expression;}
+	| expression = calculate()";"{ return expression;}
+	| expression = if_else_line()";" { return expression;}
+	| expression = while_loop_line()";" { return expression; }
+	| expression = print()";" { return expression; }
+	| expression = method_def() { return expression; }
+	| ";"
+  	{
+    	throw new Error("Parse error");
+  	}
 	
 }
 
@@ -216,14 +259,11 @@ Expression calculate() :
 }
 {
 
-  e= compare()";"
+  e= compare()
   {
     return e;
   }
-	| ";"
-  {
-    throw new Error("Parse error");
-  }
+	
 }
 
 
@@ -357,8 +397,9 @@ Expression function():
 	 )*
     )?
  	")" { return FunctionFactory.createFunction(functionName.image, parameters);}
-	)? { return new VariableExpression(functionName.image); }
+	) { return new VariableExpression(functionName.image); }
 }
+
 
 
 

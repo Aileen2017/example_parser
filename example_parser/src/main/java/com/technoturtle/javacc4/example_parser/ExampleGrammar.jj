@@ -155,7 +155,7 @@ Expression method_def():
 	{
 		FunctionExpression methodExpression = new FunctionExpression("double", methodName.image, parameters, blockExpression);
 		FunctionFactory.addFunction(methodExpression);
-		return new FunctionFactory();
+		return methodExpression;
 	}
 	  
 
@@ -396,7 +396,7 @@ Expression function():
 		}	   
 	 )*
     )?
- 	")" { return FunctionFactory.createFunction(functionName.image, parameters);}
+ 	")" { return FunctionFactory.createFunctionCallExpression(functionName.image, parameters);}
 	) { return new VariableExpression(functionName.image); }
 }
 

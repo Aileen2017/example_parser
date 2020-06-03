@@ -2,121 +2,91 @@
 package com.technoturtle.example_parser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import java.io.*;
-import java.io.ByteArrayInputStream; 
-import java.io.InputStream; 
-import java.nio.charset.Charset; 
-import java.util.List; 
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.nio.charset.Charset;
+import java.util.List;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.technoturtle.javacc4.example_parser.ExampleGrammar;
 import com.technoturtle.javacc4.example_parser.ParseException;
-import com.technoturtle.javacc4.example_parser.expressions.*;
-
+import com.technoturtle.javacc4.example_parser.expressions.Context;
+import com.technoturtle.javacc4.example_parser.expressions.Expression;
 
 public class ExampleGrammarTest {
-
-	@Test 
-	public void test() throws ParseException 
-	{ 
-		String input = "1+5;@"; 
-		InputStream inputStream = new
-		ByteArrayInputStream(input.getBytes(Charset.forName("UTF-8")));
-
-		ExampleGrammar exampleGrammar = new ExampleGrammar(inputStream); 
-		Context context = new Context(); 
-		List<Expression> expressions = ExampleGrammar.multiple_lines(); 
-		for(Expression l : expressions) 
-		{
-			System.out.println(l.evaluate(context)); 
-			assertEquals(6, l.evaluate(context), "Expected to be 6");
-
-		}
+	ExampleGrammar exampleGrammar ;
+	String input;
+	InputStream inputStream;
+	Context context; 
+	ByteArrayOutputStream baos ;
+	PrintStream newPs;
+	PrintStream oldPs;
+	
+	@BeforeEach
+	void setup() {
+			
+		context = new Context(); 
+		baos = new ByteArrayOutputStream();
+		newPs = new PrintStream(baos);
+		oldPs = System.out;
+		System.setOut(newPs);
+		
+	}
+	
+	void initialiseInput(String input) {
+		this.input = input;
+		inputStream = new
+				ByteArrayInputStream(input.getBytes(Charset.forName("UTF-8")));
+		exampleGrammar = new ExampleGrammar(inputStream); 
+	}
+	
+	void printout() {
+		System.out.flush();
+		System.setOut(oldPs);
+		System.out.println(baos.toString());
 	}
 	
 	
 	@Test
-	public void testPrint() throws ParseException {
-		//String input = "A=1;if(A==1){print(A)}else{print(A)};@";
-		String input = "A=2; print(A);@";
-		InputStream inputStream = new
-		ByteArrayInputStream(input.getBytes(Charset.forName("UTF-8")));
-		
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		PrintStream newPs = new PrintStream(baos);
-		PrintStream oldPs = System.out;
-		System.setOut(newPs);
-
-		ExampleGrammar exampleGrammar = new ExampleGrammar(inputStream); 
-		Context context = new Context(); 
-		List<Expression> expressions = ExampleGrammar.multiple_lines(); 
-		for(Expression l : expressions) 
-		{
-			l.evaluate(context); 
-
-		}
-		System.out.flush();
-		System.setOut(oldPs);
-		System.out.println(baos.toString());
-		assertEquals("2.0\n", baos.toString());
-				
+	public void testSimpleCalculate() throws ParseException {
+		//2+3;@
 	}
 	
 	@Test
-	public void testIfElse() throws ParseException {
-		String input = "A=1;B=3;if(A>B){print(A);}else{print(B);};@";
-		InputStream inputStream = new
-		ByteArrayInputStream(input.getBytes(Charset.forName("UTF-8")));
-		
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		PrintStream newPs = new PrintStream(baos);
-		PrintStream oldPs = System.out;
-		System.setOut(newPs);
-
-		ExampleGrammar exampleGrammar = new ExampleGrammar(inputStream); 
-		Context context = new Context(); 
-		List<Expression> expressions = ExampleGrammar.multiple_lines(); 
-		for(Expression l : expressions) 
-		{
-			l.evaluate(context); 
-
-		}
-		System.out.flush();
-		System.setOut(oldPs);
-		System.out.println(baos.toString());
-		assertEquals("3.0\n", baos.toString());
-				
+	public void testCalculateWithFunction() throws ParseException {
+		//POW(2,3)+1;@
 	}
 	
 	@Test
-	public void testIfElseScope() throws ParseException {
-		String input = "A=1;B=3;if(A<B){c=10; print(c);}else{print(B);};print(c);@";
-		InputStream inputStream = new
-		ByteArrayInputStream(input.getBytes(Charset.forName("UTF-8")));
-		
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		PrintStream newPs = new PrintStream(baos);
-		PrintStream oldPs = System.out;
-		System.setOut(newPs);
+	public void testFunctionOnly() throws ParseException {
 
-		ExampleGrammar exampleGrammar = new ExampleGrammar(inputStream); 
-		Context context = new Context(); 
-		List<Expression> expressions = ExampleGrammar.multiple_lines(); 
-		for(Expression l : expressions) 
-		{
-			l.evaluate(context); 
-
-		}
-		System.out.flush();
-		System.setOut(oldPs);
-		System.out.println(baos.toString());
-		assertEquals("10.0\n0.0\n", baos.toString());
-				
+		//double fib(A) {return 1+2;} @
 	}
 	
-	//String input = "def f() { print(100)}; call f();@";
+
+	@Test
+	public void testFibonacci() {
+		//double fib(a) { if(1 := 2){return 1+2;} else{return 2+2;};} A=fib(2); print(A);@	
+		//double fib(a) { if(a := 1){return 1;} else{return 2+2;};} A=fib(2); print(A);@
+		//(not working)//double fib(a) { if(1 := 2){return 1+2;} else{return 2+2;};return fib(a-1)+fib(a-2);} A=fib(3); print(A);
+		//double fib(a) { if(a := 1){return 1;} else{return 2+2;};} double fib2(b) { return 4;} A=fib(1)+fib2(2); print(A);@
+		//double fib(a) { if(a := 1){return 1;} else{return 2+2;};} double fib2(b) { return 4;} A=fib(6)+fib2(2); print(A);@
+		
+		//not working double fib(a) { if(a := 1){return 1;} else{return 2+2;};} double fib2(b) { return fib(1);} A=fib(6)+fib2(2); print(A);@
+		
+		//not working //double fib(a) { if(a := 1){return 1;} else{return 2+2;}} double fib2(b) { return fib(1);} A=fib(6)+fib2(2); print(A);@
+		//showing method_def can be written inside block(to be improved): if(1:=1){ A=2; double f() { A=2;}  } else{ };@ 
+		//double fp(A) {print(A);} double fp2(B) { fp(5) ;} fp(2); fp2(3);@
+		
+	}
 	
-	
+
 	
 	
 }
+

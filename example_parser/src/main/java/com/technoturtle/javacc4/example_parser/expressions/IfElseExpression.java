@@ -15,7 +15,6 @@ public class IfElseExpression implements Expression {
 	
 	@Override
 	public double evaluate(Context context) {
-		// TODO Auto-generated method stub
 		
 		Context subcontext = new Context(context);
 		subcontext.parent = context;

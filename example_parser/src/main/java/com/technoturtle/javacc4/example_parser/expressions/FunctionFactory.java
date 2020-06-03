@@ -26,10 +26,7 @@
 		  functionMap.put(functionDef.methodName, functionDef);
 	  }
 	  
-	/*  public double evaluate(Context context) {
-		  return 1.0;
-		  
-	  }*/
+	
   
 
   

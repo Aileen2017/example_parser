@@ -80,6 +80,11 @@ TOKEN :
 |  < RETURNTYPE: ["a"-"z","A"-"Z"](["0"-"9","a"-"z","A"-"Z"])* >
 }
 
+TOKEN :
+{
+	< DOUBLE : "double" >
+}
+
 List<Expression> multiple_lines():
 {
 	List<Expression> expressions = new ArrayList<Expression>();
@@ -103,9 +108,11 @@ Expression while_loop_line():
 	BlockExpression e2;
 }
 {
-  "while("
+  "while"
+  "("
    e1 = compare()
-   "){"
+   ")"
+   "{"
    e2 = block()
    "}"
    {
@@ -138,7 +145,7 @@ Expression method_def():
 }
 {
 	"double "
-	methodName = < IDENTIFIER>
+	methodName = < IDENTIFIER >
 	"("
 	(	  	  (		parameterName = < IDENTIFIER > { parameters.add(parameterName.image); }
 	  )
@@ -171,9 +178,10 @@ Expression if_else_line():
 	
 }
 {
-	"if("
+	"if( "
 	e1 = compare()
 	"){"
+
 	e2 = block()
 	"}"
 	"else{"
@@ -397,7 +405,7 @@ Expression function():
 	 )*
     )?
  	")" { return FunctionFactory.createFunctionCallExpression(functionName.image, parameters);}
-	) { return new VariableExpression(functionName.image); }
+	)? { return new VariableExpression(functionName.image); }
 }
 
 

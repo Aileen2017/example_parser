@@ -14,7 +14,13 @@ public class BlockExpression implements Expression {
 	public double evaluate(Context context) {
 		// TODO Auto-generated method stub
 		for(Expression e : expressions) {
-			e.evaluate(context);
+			try {
+				e.evaluate(context);
+			}
+			catch(Exception exception
+					) {
+				
+			}
 		}
 		return 1.0;
 		

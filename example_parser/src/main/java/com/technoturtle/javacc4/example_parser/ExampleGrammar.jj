@@ -18,8 +18,6 @@ public class ExampleGrammar
   public static void main(String args []) throws ParseException
   {
 	Context context = new Context();
-	//List<Context> contextStack = new LinkedList<Context>();  
-    
     ExampleGrammar parser = new ExampleGrammar(System.in);
     while (true)
     {
@@ -108,11 +106,9 @@ Expression while_loop_line():
 	BlockExpression e2;
 }
 {
-  "while"
-  "("
+  "while("
    e1 = compare()
-   ")"
-   "{"
+   "){"
    e2 = block()
    "}"
    {
@@ -181,7 +177,6 @@ Expression if_else_line():
 	"if( "
 	e1 = compare()
 	"){"
-
 	e2 = block()
 	"}"
 	"else{"
@@ -226,6 +221,7 @@ Expression multiple_types_one_line():
 	| expression = while_loop_line()";" { return expression; }
 	| expression = print()";" { return expression; }
 	| expression = method_def() { return expression; }
+	| expression = return_statement()";" { return expression; }
 	| ";"
   	{
     	throw new Error("Parse error");
@@ -404,8 +400,21 @@ Expression function():
 		}	   
 	 )*
     )?
- 	")" { return FunctionFactory.createFunctionCallExpression(functionName.image, parameters);}
-	)? { return new VariableExpression(functionName.image); }
+ 	")" { return FunctionFactory.createFunction(functionName.image, parameters);}
+	) { return new VariableExpression(functionName.image); }
+}
+
+Expression return_statement():
+{
+  Expression e;
+}
+{
+	"return "
+	e = calculate()
+	{
+		return new ReturnExpression(e);
+	}
+	
 }
 
 

@@ -4,14 +4,23 @@ import java.util.*;
 public class FunctionCallExpression implements Expression {
 	FunctionExpression functionExpression;
 	List<Expression> parameterValues;
+	String functionName;
 	
-	public FunctionCallExpression(FunctionExpression functionExpression, List<Expression> parameterValues) {
+	/*public FunctionCallExpression(FunctionExpression functionExpression, List<Expression> parameterValues) {
 		this.functionExpression = functionExpression;
+		this.parameterValues = parameterValues;
+				
+	}*/
+	
+	public FunctionCallExpression(String functionName, List<Expression> parameterValues) {
+		
+		this.functionName = functionName;
 		this.parameterValues = parameterValues;
 				
 	}
 	
 	public double evaluate(Context context) {
+		FunctionExpression functionExpression = FunctionFactory.functionMap.get(functionName);
 		Context subContext = new Context();
 		subContext.parent = context;
 		for(int i=0; i< functionExpression.parameterNames.size();i++)

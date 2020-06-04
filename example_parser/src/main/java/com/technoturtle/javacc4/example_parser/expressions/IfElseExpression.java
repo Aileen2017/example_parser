@@ -18,10 +18,14 @@ public class IfElseExpression implements Expression {
 		
 		Context subcontext = new Context(context);
 		subcontext.parent = context;
-		if(compareExpression.evaluate(context)==1.0) {
-			blockExpression1.evaluate(subcontext);
-		}else {
-			blockExpression2.evaluate(subcontext);
+		try {
+			if(compareExpression.evaluate(context)==1.0) {
+				blockExpression1.evaluate(subcontext);
+			}else {
+				blockExpression2.evaluate(subcontext);
+			}
+		}catch(Exception exception) {
+			throw exception;
 		}
 		return 1.0;
 	}

@@ -17,9 +17,8 @@ public class BlockExpression implements Expression {
 			try {
 				e.evaluate(context);
 			}
-			catch(Exception exception
-					) {
-				
+			catch(Exception exception) {
+				throw exception;
 			}
 		}
 		return 1.0;

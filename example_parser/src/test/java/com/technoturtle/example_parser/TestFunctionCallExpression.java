@@ -32,5 +32,19 @@ public class TestFunctionCallExpression extends ExampleGrammarTest {
 		assertEquals("2.0\n5.0\n", baos.toString());	
 		
 	}
+	
+	@Test
+	public void testFunctionCallExpression_Order_Change() throws ParseException {
+		initialiseInput("double fp2(B) { fp(5) ;} double fp(A) {print(A);}  fp(2); fp2(3);@");		
+		List<Expression> expressions = ExampleGrammar.multiple_lines(); 
+		for(Expression l : expressions) 
+		{
+			l.evaluate(context); 
+
+		}
+		printout();
+		assertEquals("2.0\n5.0\n", baos.toString());	
+		
+	}
 
 }

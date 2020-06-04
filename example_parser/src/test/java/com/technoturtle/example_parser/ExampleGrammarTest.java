@@ -52,15 +52,7 @@ public class ExampleGrammarTest {
 	}
 	
 	
-	@Test
-	public void testSimpleCalculate() throws ParseException {
-		//2+3;@
-	}
-	
-	@Test
-	public void testCalculateWithFunction() throws ParseException {
-		//POW(2,3)+1;@
-	}
+
 	
 	@Test
 	public void testFunctionOnly() throws ParseException {

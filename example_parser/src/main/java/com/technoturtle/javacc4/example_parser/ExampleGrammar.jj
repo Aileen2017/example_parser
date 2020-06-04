@@ -149,7 +149,7 @@ Expression method_def():
 	  	parameterName = < IDENTIFIER > { parameters.add(parameterName.image); }
 	  	  )*
 	)?
-	")"
+	")"	
 	"{"
 	
 		blockExpression = block()
@@ -400,8 +400,8 @@ Expression function():
 		}	   
 	 )*
     )?
- 	")" { return FunctionFactory.createFunction(functionName.image, parameters);}
-	) { return new VariableExpression(functionName.image); }
+ 	")" { return FunctionFactory.createFunctionCallExpression(functionName.image, parameters);}
+	)? { return new VariableExpression(functionName.image); }
 }
 
 Expression return_statement():

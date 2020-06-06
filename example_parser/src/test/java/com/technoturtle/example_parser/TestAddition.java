@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.technoturtle.javacc4.example_parser.ExampleGrammar;
 import com.technoturtle.javacc4.example_parser.ParseException;
 import com.technoturtle.javacc4.example_parser.expressions.Expression;
 
@@ -17,7 +16,7 @@ public class TestAddition extends ExampleGrammarTest {
 	public void testAddition() throws ParseException 
 	{ 
 		initialiseInput("1+5;@");	
-		List<Expression> expressions = ExampleGrammar.multiple_lines(); 
+		List<Expression> expressions = testParser.multiple_lines(); 
 		for(Expression l : expressions) 
 		{
 			System.out.println(l.evaluate(context)); 

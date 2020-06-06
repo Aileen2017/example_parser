@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.technoturtle.javacc4.example_parser.ExampleGrammar;
 import com.technoturtle.javacc4.example_parser.ParseException;
 import com.technoturtle.javacc4.example_parser.expressions.Expression;
 
@@ -15,7 +14,7 @@ public class TestFunctionExpression extends ExampleGrammarTest {
 	@Test
 	public void testPowerFunctionExpression_print_statements() throws ParseException {
 		initialiseInput("A=POW(2,3);print(A);@");
-		List<Expression> expressions = ExampleGrammar.multiple_lines();
+		List<Expression> expressions = testParser.multiple_lines();
 		for (Expression l : expressions) {
 			l.evaluate(context);
 
@@ -28,7 +27,7 @@ public class TestFunctionExpression extends ExampleGrammarTest {
 	@Test
 	public void testCustomisedFunctionExpression() throws ParseException {
 		initialiseInput("double fp() { A=2; print(A);} fp();@");
-		List<Expression> expressions = ExampleGrammar.multiple_lines();
+		List<Expression> expressions = testParser.multiple_lines();
 		for (Expression l : expressions) {
 			l.evaluate(context);
 

@@ -3,7 +3,7 @@
  */
 options
 {
-  static = true;
+  static = false;
 }
 
 PARSER_BEGIN(ExampleGrammar)
@@ -18,15 +18,15 @@ public class ExampleGrammar
   public static void main(String args []) throws ParseException
   {
 	Context context = new Context();
-    ExampleGrammar parser = new ExampleGrammar(System.in);
     while (true)
     {
+      ExampleGrammar parser = new ExampleGrammar(System.in);
       System.out.println("Reading from standard input...");
       System.out.print("Enter an expression like \"1+(2+3)*4;\" :");
       try
       {
  
-		List<Expression> lines = ExampleGrammar.multiple_lines();
+		List<Expression> lines = parser.multiple_lines();
 		for(Expression l : lines) {		 
 			l.evaluate(context);
 		
@@ -37,7 +37,6 @@ public class ExampleGrammar
       {
         System.out.println("NOK.");
         System.out.println(e.getMessage());
-        ExampleGrammar.ReInit(System.in);
       }
       catch (Error e)
       {
@@ -169,24 +168,36 @@ Expression method_def():
 
 Expression if_else_line():
 {
-	Expression e1;
-	BlockExpression e2, e3;
+	HashMap<CompareExpression, BlockExpression > map = new HashMap<CompareExpression, BlockExpression >();
+	Expression c1, c2;
+	BlockExpression e1, e2, e3;
+	IfElseExpression ifElseExpression = new IfElseExpression();
+	ifElseExpression.conditionBlockPairs = map;
 	
 }
 {
-	"if( "
-	e1 = compare()
+		"if("
+	c1 = compare()
 	"){"
-	e2 = block()
+	e1 = block()
+	"}" { map.put((CompareExpression)c1, e1);  }
+	(	  
+	"else if("
+	c2 = compare()
+	"){"
+	  e2 = block()
 	"}"
-	"else{"
-	  e3 = block()
+	{ map.put((CompareExpression)c2,e2);}
+	)*  
+	
+	(  
+	"else{"	
+	  e3 = block()	
 	"}"
-	
-	{
-	  return new IfElseExpression((CompareExpression)e1, e2, e3);		
-	}
-	
+	{ ifElseExpression.blockExpression3 = e3; }	
+	)*
+
+	{ return ifElseExpression; }		
 }
 
 BlockExpression block():
@@ -304,7 +315,8 @@ Expression equal():
 	left = sum() 
 	(
 	  ":="
-	right = sum() {left = new EqualExpression(left, right);})*
+	right = sum() {left = new EqualExpression(left, right);})
+	*
 	{return left; }
 }
 

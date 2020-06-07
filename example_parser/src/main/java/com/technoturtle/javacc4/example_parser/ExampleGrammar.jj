@@ -65,8 +65,15 @@ TOKEN : /* OPERATORS */
 | < MINUS : "-" >
 | < MULTIPLY : "*" >
 | < DIVIDE : "/" >
-| < POW : "pow" >
 
+}
+
+TOKEN :
+{
+	< DOUBLE : "double" >
+|	< IF : "if" >
+|   < ELSE : "else" >
+|   < WHILE : "while" >
 }
 
 TOKEN :
@@ -75,11 +82,6 @@ TOKEN :
 | < #DIGIT : [ "0"-"9" ] >
 | < IDENTIFIER: ["a"-"z","A"-"Z"](["0"-"9","a"-"z","A"-"Z"])* >
 |  < RETURNTYPE: ["a"-"z","A"-"Z"](["0"-"9","a"-"z","A"-"Z"])* >
-}
-
-TOKEN :
-{
-	< DOUBLE : "double" >
 }
 
 List<Expression> multiple_lines():
@@ -105,9 +107,11 @@ Expression while_loop_line():
 	BlockExpression e2;
 }
 {
-  "while("
+  <WHILE>
+  "("
    e1 = compare()
-   "){"
+   ")"
+   "{"
    e2 = block()
    "}"
    {
@@ -139,7 +143,7 @@ Expression method_def():
   Token methodName, parameterName;
 }
 {
-	"double "
+	<DOUBLE>
 	methodName = < IDENTIFIER >
 	"("
 	(	  	  (		parameterName = < IDENTIFIER > { parameters.add(parameterName.image); }
@@ -176,13 +180,15 @@ Expression if_else_line():
 	
 }
 {
-		"if("
+		<IF>
+	"("
 	c1 = compare()
 	"){"
 	e1 = block()
 	"}" { map.put((CompareExpression)c1, e1);  }
 	(	  
-	"else if("
+	<ELSE> <IF>
+	"("
 	c2 = compare()
 	"){"
 	  e2 = block()

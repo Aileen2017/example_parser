@@ -59,7 +59,7 @@ public class TestFunctionCallExpression extends ExampleGrammarTest {
 	
 	@Test
 	public void testFactorias() throws ParseException{
-		initialiseInput("double fact(n) { if( n :=1){ return 1;}else{ return n * fact(n - 1);};} a = fact(10); print(a);@");		
+		initialiseInput("double fact(n) { if ( n :=1){ return 1;} else{ return n * fact(n - 1);};} a = fact(10); print(a);@");		
 		List<Expression> expressions = testParser.multiple_lines(); 
 		for(Expression l : expressions) 
 		{

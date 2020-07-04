@@ -21,7 +21,7 @@ public class WhileLoopExpression implements Expression {
 			}
 		}catch(Error e)
 		{
-			return 0.0;
+			throw e;
 		}
 		return 1.0;
 	}

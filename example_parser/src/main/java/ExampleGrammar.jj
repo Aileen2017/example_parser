@@ -1,0 +1,445 @@
+/**
+ * JavaCC template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
+ */
+options
+{
+  static = false;
+}
+
+PARSER_BEGIN(ExampleGrammar)
+package com.technoturtle.javacc4.example_parser;
+import java.util.*;
+
+import com.technoturtle.javacc4.example_parser.expressions.*;
+
+
+public class ExampleGrammar
+{
+  public static void main(String args []) throws ParseException
+  {
+	Context context = new Context();
+    while (true)
+    {
+      ExampleGrammar parser = new ExampleGrammar(System.in);
+      System.out.println("Reading from standard input...");
+      System.out.print("Enter an expression like \"1+(2+3)*4;\" :");
+      try
+      {
+ 
+		List<Expression> lines = parser.multiple_lines();
+		for(Expression l : lines) {		 
+			l.evaluate(context);
+		
+		}
+	
+      }
+      catch (Exception e)
+      {
+        System.out.println("NOK.");
+        System.out.println(e.getMessage());
+      }
+      catch (Error e)
+      {
+        System.out.println("Oops.");
+        System.out.println(e.getMessage());
+        break;
+      }
+    }
+  }
+}
+
+
+PARSER_END(ExampleGrammar)
+
+SKIP :
+{
+  " "
+| "\r"
+| "\t"
+| "\n"
+}
+
+TOKEN : /* OPERATORS */
+{
+  < PLUS : "+" >
+| < MINUS : "-" >
+| < MULTIPLY : "*" >
+| < DIVIDE : "/" >
+
+}
+
+TOKEN :
+{
+	< DOUBLE : "double" >
+|	< IF : "if" >
+|   < ELSE : "else" >
+|   < WHILE : "while" >
+}
+
+TOKEN :
+{
+  < CONSTANT : (< DIGIT >)+ >
+| < #DIGIT : [ "0"-"9" ] >
+| < IDENTIFIER: ["a"-"z","A"-"Z"](["0"-"9","a"-"z","A"-"Z"])* >
+|  < RETURNTYPE: ["a"-"z","A"-"Z"](["0"-"9","a"-"z","A"-"Z"])* >
+}
+
+List<Expression> multiple_lines():
+{
+	List<Expression> expressions = new ArrayList<Expression>();
+  	Expression expression;
+	
+}
+{
+
+	(
+		expression = multiple_types_one_line(){ expressions.add(expression);}
+	)*
+	"@"
+	{
+		return expressions;	  
+	}
+}
+
+Expression while_loop_line():
+{
+	Expression e1;
+	BlockExpression e2;
+}
+{
+  <WHILE>
+  "("
+   e1 = compare()
+   ")"
+   "{"
+   e2 = block()
+   "}"
+   {
+     return new WhileLoopExpression((CompareExpression)e1, e2);
+   }
+	
+}
+
+Expression print():
+{
+	
+	Token variableToken;
+}
+{
+	"print("
+	variableToken = < IDENTIFIER >
+	")"
+	{
+		return new PrintExpression(new VariableExpression(variableToken.image));
+	}
+		
+}
+
+Expression method_def():
+{
+  List<String > parameters = new ArrayList<String >();
+  
+  BlockExpression blockExpression;
+  Token methodName, parameterName;
+}
+{
+	<DOUBLE>
+	methodName = < IDENTIFIER >
+	"("
+	(	  	  (		parameterName = < IDENTIFIER > { parameters.add(parameterName.image); }
+	  )
+	  (","
+	  	parameterName = < IDENTIFIER > { parameters.add(parameterName.image); }
+	  	  )*
+	)?
+	")"	
+	"{"
+	
+		blockExpression = block()
+
+	"}"
+	{
+		FunctionExpression methodExpression = new FunctionExpression("double", methodName.image, parameters, blockExpression);
+		FunctionFactory.addFunction(methodExpression);
+		return methodExpression;
+	}
+	  
+
+	
+}
+
+
+
+Expression if_else_line():
+{
+	HashMap<CompareExpression, BlockExpression > map = new HashMap<CompareExpression, BlockExpression >();
+	Expression c1, c2;
+	BlockExpression e1, e2, e3;
+	IfElseExpression ifElseExpression = new IfElseExpression();
+	ifElseExpression.conditionBlockPairs = map;
+	
+}
+{
+		<IF>
+	"("
+	c1 = compare()
+	"){"
+	e1 = block()
+	"}" { map.put((CompareExpression)c1, e1);  }
+	(	  
+	<ELSE> <IF>
+	"("
+	c2 = compare()
+	"){"
+	  e2 = block()
+	"}"
+	{ map.put((CompareExpression)c2,e2);}
+	)*  
+	
+	(  
+	"else{"	
+	  e3 = block()	
+	"}"
+	{ ifElseExpression.blockExpression3 = e3; }	
+	)*
+
+	{ return ifElseExpression; }		
+}
+
+BlockExpression block():
+{
+	List<Expression> expressions = new ArrayList<Expression>();
+  	Expression expression;
+}
+{
+  	(
+		expression = multiple_types_one_line(){ expressions.add(expression);}
+	)*
+	
+	{
+		return new BlockExpression(expressions);	  
+	}
+
+}
+
+
+
+
+Expression multiple_types_one_line():
+{
+ 
+  Expression expression;
+}
+{
+	LOOKAHEAD(2)
+	expression = variable_assign()";"{ return expression;}
+	| expression = calculate()";"{ return expression;}
+	| expression = if_else_line()";" { return expression;}
+	| expression = while_loop_line()";" { return expression; }
+	| expression = print()";" { return expression; }
+	| expression = method_def() { return expression; }
+	| expression = return_statement()";" { return expression; }
+	| ";"
+  	{
+    	throw new Error("Parse error");
+  	}
+	
+}
+
+
+AssignmentExpression variable_assign():
+{
+	Token left = new Token();
+	Expression right;
+}
+{
+      left = < IDENTIFIER >
+  "="
+  right = calculate() { return new AssignmentExpression(left.image, right); }	
+}
+
+Expression one_line() :
+{
+	Expression e;
+}
+{
+
+  e= equal()";"
+  {
+    return e;
+  }
+| ";"
+  {
+    throw new Error("Parse error");
+  }
+}
+
+Expression calculate() :
+{
+	Expression e;
+}
+{
+
+  e= compare()
+  {
+    return e;
+  }
+	
+}
+
+
+Expression compare():
+{
+  	Expression left;
+	Expression right;
+	Token operatorToken;	
+
+}
+{
+    
+	  left = sum()
+	  (
+	  
+	  (    	 
+	  operatorToken = ">"| operatorToken = "<" | operatorToken = ":="
+	  )
+	  right = sum(){left = new CompareExpression(left, right,operatorToken.image);}
+	  )*
+	  { return left; } 
+		   	
+}
+
+
+
+
+Expression equal():
+{
+	Expression left;
+	Expression right;	
+}
+{
+	left = sum() 
+	(
+	  ":="
+	right = sum() {left = new EqualExpression(left, right);})
+	*
+	{return left; }
+}
+
+
+Expression sum() :
+{
+	Expression left;
+	Expression right;
+	Token operatorToken = new Token();
+}
+{
+  left = term()
+  (
+    (
+      operatorToken = < PLUS >
+    | operatorToken = < MINUS >
+    )
+    right = term() { if(operatorToken.image=="+") left = new PlusExpression(left, right);
+    					else if(operatorToken.image=="-") left = new MinusExpression(left,right);}
+  )* { return left; }
+}
+
+Expression term() :
+{
+	Expression left;
+	Expression right;
+	Token operatorToken = new Token();
+}
+{
+  left = unary()
+  (
+    (
+      operatorToken =< MULTIPLY >
+    | operatorToken =< DIVIDE >
+    )
+    right = unary() { if(operatorToken.image == "*") left = new MultiplicationExpression(left, right);
+    else left = new DivisionExpression(left, right); }
+  )* { return left; }
+}
+
+Expression unary() :
+{
+	Expression e;
+	
+}
+{
+  < MINUS > e = element() {
+	System.out.println("-unary section:");
+    return new MinusExpression(new ValueExpression(0), e); }
+| e = element() { return e; }
+
+}
+
+Expression element() :
+{
+	Token c = new Token();
+	Expression e;
+	
+}
+{
+	
+    c=< CONSTANT > { return new ValueExpression(Double.parseDouble(c.image)); }
+	| "(" e = compare() ")" { return e;}
+	| e = function() { return e;}
+}
+
+Expression function():
+{
+	
+	Token functionName;
+	List<Expression > parameters = new ArrayList<Expression >();
+	Expression parameterValue;
+}
+{
+  functionName = < IDENTIFIER >
+  (
+    
+  "("
+  (
+  	(
+    	parameterValue = sum()
+	
+		{
+		  parameters.add(parameterValue);
+		}
+	 )
+	 (
+	  ","
+    	parameterValue = sum()
+	
+		{
+		  parameters.add(parameterValue);
+		}	   
+	 )*
+    )?
+ 	")" { return FunctionFactory.createFunctionCallExpression(functionName.image, parameters);}
+	)? { return new VariableExpression(functionName.image); }
+}
+
+Expression return_statement():
+{
+  Expression e;
+}
+{
+	"return "
+	e = calculate()
+	{
+		return new ReturnExpression(e);
+	}
+	
+}
+
+
+
+
+
+
+
+
+

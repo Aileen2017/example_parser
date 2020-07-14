@@ -14,7 +14,7 @@ public class TestFunctionCallExpression extends ExampleGrammarTest {
 
 	@Test
 	public void testFunctionCallExpression_In() throws ParseException {
-		initialiseInput("double fp(A) {print(A);} double fp2(B) { fp(5) ;} fp(2); fp2(3);@");		
+		initialiseInput("double fp(A) { print(A);} double fp2(B) { fp(5) ;} fp(2); fp2(3);@");		
 		List<Expression> expressions = testParser.multiple_lines(); 
 		for(Expression l : expressions) 
 		{
@@ -53,13 +53,12 @@ public class TestFunctionCallExpression extends ExampleGrammarTest {
 		}
 		printout();
 		assertEquals("75025.0\n", baos.toString());
-		
-		
+			
 	}
 	
 	@Test
-	public void testFactorias() throws ParseException{
-		initialiseInput("double fact(n) { if ( n :=1){ return 1;} else{ return n * fact(n - 1);};} a = fact(10); print(a);@");		
+	public void testFactorials() throws ParseException{
+		initialiseInput("double fact ( n ) { if (n :=1){return 1;} else{ return n * fact(n - 1);};} a = fact(10); print(a);@");		
 		List<Expression> expressions = testParser.multiple_lines(); 
 		for(Expression l : expressions) 
 		{

@@ -32,6 +32,7 @@ public class TestIfElse extends ExampleGrammarTest{
 		for(Expression l : expressions) 
 		{
 			assertEquals(1.0, l.evaluate(context)); 
+			
 
 		}
 		printout();

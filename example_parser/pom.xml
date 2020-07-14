@@ -41,6 +41,7 @@
 				<artifactId>maven-resources-plugin</artifactId>
 				<version>3.0.2</version>
 			</plugin>
+
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>javacc-maven-plugin</artifactId>
@@ -95,24 +96,15 @@
 				<artifactId>maven-project-info-reports-plugin</artifactId>
 				<version>3.0.0</version>
 			</plugin>
+			
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
 				<version>1.2.1</version>
-				<executions>
-					<execution>
-						<id>compile-reports</id>
-						<phase>compile</phase>
-						<goals>
-							<goal>java</goal>
-						</goals>
-						<configuration>
-							<mainClass>com.technoturtle.javacc4.example_parser.ExampleGrammar</mainClass>
-						</configuration>
-					</execution>
-				</executions>
+				<configuration>
+					<mainClass>com.technoturtle.javacc4.example_parser.ExampleGrammar</mainClass>
+				</configuration>
 			</plugin>
-
 		</plugins>
 
 	</build>

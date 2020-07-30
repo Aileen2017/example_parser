@@ -1,8 +1,11 @@
 # example_parser
-Steps 
+Steps to run the parser
 1. Go to your_folder and run Git clone https://github.c/Aileen2017/example_parser.git
+
 2. Go to your_folder/example_parser/example_parser, run mvn compile
+
 3: then run mvn exec:java, user prompt should appear: Reading from standard input...
+
 4: enter the following code written in this customised language
 
 Code example 1: 
